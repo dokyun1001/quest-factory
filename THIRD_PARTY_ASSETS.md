@@ -15,7 +15,7 @@ Derived (sliced or recoloured) files are kept separately in `assets/modified/` a
 ## Redistribution warning
 Tiny Swords and the Automation Tileset **must not be published as raw files**.
 If the GitHub repository is **public**, `assets/vendor`, `assets/_archives` and `assets/modified` must stay out of git (see `.gitignore`). Recreate them with `tools/fetch_itch.py` and `tools/build_art.py`.
-Shipping them inside a compiled game build (Windows/WebGL) is allowed.
+Shipping them inside a compiled game build is allowed. The web demo ships only a game-specific packed atlas (`tools/pack_web_assets.py`), not the original files.
 
 ## Credits (optional, but we include them)
 Art by Pixel Frog (Tiny Swords), sierrassets (Automation Tileset), Merchant Shade (RPG Icons) and Kenney (kenney.nl).

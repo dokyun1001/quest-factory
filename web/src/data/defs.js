@@ -80,7 +80,7 @@ export const BELT_SPEED = 1.25; // cells per second (base)
 export const OUT_CAP = 2;       // machine output buffer
 
 // hoppers never draw the warehouse below this (keeps building materials available)
-export const HOPPER_RESERVE = { wood: 20 };
+export const HOPPER_RESERVE = { wood: 20, loot_shadow: 4, loot_violet: 4, loot_crimson: 4 };
 
 export const START_STOCK = { wood: 60, coin: 60, gold_ore: 6 };
 export const QUEST = { baseReward: 10, travelSpeed: 120, fightTime: 3.5 };
