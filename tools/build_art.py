@@ -118,23 +118,39 @@ def build_items(sheet, meta):
 TS = os.path.join(VENDOR, 'tiny-swords', 'Tiny Swords (Free Pack)')
 
 
-def stitch_exploded(src, cells, cell=64):
-    """Tiny Swords ships 9-slice UI pieces spread out with gaps; pack the 3x3 pieces tightly."""
+def stitch_exploded(src, cells=(0, 2, 4), cell=64, m=40):
+    """Tiny Swords ships 9-slice UI as separated pieces, each with its own inner outline.
+    Build a clean 9-slice: keep only the outer `m` px of each corner/edge piece, extend
+    edges from a 1px strip, fill the centre flat. Returns (image, margins l,r,t,b)."""
     im = Image.open(src).convert('RGBA')
-    out = Image.new('RGBA', (cell * 3, cell * 3), (0, 0, 0, 0))
-    for j, cy in enumerate(cells):
-        for i, cx in enumerate(cells):
-            piece = im.crop((cx * cell, cy * cell, (cx + 1) * cell, (cy + 1) * cell))
-            out.paste(piece, (i * cell, j * cell))
-    return out
+    c = lambda i, j: im.crop((cells[i] * cell, cells[j] * cell, (cells[i] + 1) * cell, (cells[j] + 1) * cell))
+    k = cell - m
+    out = Image.new('RGBA', (m * 3, m * 3), (0, 0, 0, 0))
+    out.paste(c(0, 0).crop((0, 0, m, m)), (0, 0))
+    out.paste(c(2, 0).crop((k, 0, cell, m)), (2 * m, 0))
+    out.paste(c(0, 2).crop((0, k, m, cell)), (0, 2 * m))
+    out.paste(c(2, 2).crop((k, k, cell, cell)), (2 * m, 2 * m))
+    top = c(1, 0).crop((cell // 2, 0, cell // 2 + 1, m)).resize((m, m))
+    bot = c(1, 2).crop((cell // 2, k, cell // 2 + 1, cell)).resize((m, m))
+    lef = c(0, 1).crop((0, cell // 2, m, cell // 2 + 1)).resize((m, m))
+    rig = c(2, 1).crop((k, cell // 2, cell, cell // 2 + 1)).resize((m, m))
+    out.paste(top, (m, 0)); out.paste(bot, (m, 2 * m)); out.paste(lef, (0, m)); out.paste(rig, (2 * m, m))
+    out.paste(Image.new('RGBA', (m, m), c(1, 1).getpixel((cell // 2, cell // 2))), (m, m))
+    bb = out.getbbox()
+    out = out.crop(bb)
+    margins = (m - bb[0], m - (3 * m - bb[2]), m - bb[1], m - (3 * m - bb[3]))
+    return out, margins
 
 
 def build_ui(meta):
     os.makedirs(os.path.join(OUT, 'ui'), exist_ok=True)
     ui = os.path.join(TS, 'UI Elements', 'UI Elements')
-    stitch_exploded(os.path.join(ui, 'Papers', 'RegularPaper.png'), (0, 2, 4)).save(os.path.join(OUT, 'ui', 'paper_9slice.png'))
-    stitch_exploded(os.path.join(ui, 'Buttons', 'BigBlueButton_Regular.png'), (0, 2, 4)).save(os.path.join(OUT, 'ui', 'btn_blue_9slice.png'))
-    stitch_exploded(os.path.join(ui, 'Buttons', 'BigRedButton_Regular.png'), (0, 2, 4)).save(os.path.join(OUT, 'ui', 'btn_red_9slice.png'))
+    for name, rel in [('paper', 'Papers/RegularPaper.png'), ('btn_blue', 'Buttons/BigBlueButton_Regular.png'),
+                      ('btn_red', 'Buttons/BigRedButton_Regular.png')]:
+        img, mg = stitch_exploded(os.path.join(ui, *rel.split('/')))
+        img.save(os.path.join(OUT, 'ui', f'{name}_9slice.png'))
+        meta[f'ui_{name}'] = {'size': img.size, 'slice': mg}
+        print(name, img.size, 'slice l,r,t,b =', mg)
 
 
 def build_resource_icons(meta):

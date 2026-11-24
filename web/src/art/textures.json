@@ -1,0 +1,312 @@
+{
+ "terrain": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Tileset/Tilemap_color1.png",
+  "fw": 64,
+  "fh": 64
+ },
+ "water": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Tileset/Water Background color.png"
+ },
+ "foam": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Tileset/Water Foam.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "tree1": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree1.png",
+  "fw": 192,
+  "fh": 256
+ },
+ "tree2": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Resources/Wood/Trees/Tree2.png",
+  "fw": 192,
+  "fh": 256
+ },
+ "goldstone1": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Stones/Gold Stone 1.png"
+ },
+ "goldstone3": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Stones/Gold Stone 3.png"
+ },
+ "goldstone1_hl": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Resources/Gold/Gold Stones/Gold Stone 1_Highlight.png",
+  "fw": 128,
+  "fh": 128
+ },
+ "bush1": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Decorations/Bushes/Bushe1.png",
+  "fw": 128,
+  "fh": 128
+ },
+ "rock1": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Decorations/Rocks/Rock1.png"
+ },
+ "sheep_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Terrain/Resources/Meat/Sheep/Sheep_Idle.png",
+  "fw": 128,
+  "fh": 128
+ },
+ "dust": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Particle FX/Dust_01.png",
+  "fw": 64,
+  "fh": 64
+ },
+ "castle": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Castle.png"
+ },
+ "house1": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Buildings/Blue Buildings/House1.png"
+ },
+ "house2": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Buildings/Blue Buildings/House2.png"
+ },
+ "tower": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Tower.png"
+ },
+ "barracks": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Buildings/Blue Buildings/Barracks.png"
+ },
+ "gm_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Idle.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "gm_run": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Run.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "gm_attack": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Warrior/Warrior_Attack1.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "pawn_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Idle.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "pawn_run": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Run.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "pawn_run_axe": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Run Axe.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "pawn_run_pick": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Run Pickaxe.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "pawn_run_wood": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Run Wood.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "pawn_run_gold": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Run Gold.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "pawn_chop": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Interact Axe.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "pawn_mine": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Pawn/Pawn_Interact Pickaxe.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "archer_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Idle.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "archer_run": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Archer/Archer_Run.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "monk_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Monk/Idle.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "monk_run": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Blue Units/Monk/Run.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "enemy_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Black Units/Warrior/Warrior_Idle.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "belt": {
+  "type": "image",
+  "path": "modified/automation/belt_h.png"
+ },
+ "auto_items": {
+  "type": "sheet",
+  "path": "modified/automation/items.png",
+  "fw": 32,
+  "fh": 32
+ },
+ "auto_signs": {
+  "type": "sheet",
+  "path": "modified/automation/signs.png",
+  "fw": 32,
+  "fh": 32
+ },
+ "m_smelter": {
+  "type": "sheet",
+  "path": "modified/automation/machine_smelter.png",
+  "fw": 47,
+  "fh": 34
+ },
+ "m_fabricator": {
+  "type": "sheet",
+  "path": "modified/automation/machine_fabricator.png",
+  "fw": 39,
+  "fh": 40
+ },
+ "m_randomizer": {
+  "type": "sheet",
+  "path": "modified/automation/machine_randomizer.png",
+  "fw": 45,
+  "fh": 31
+ },
+ "m_electrifier": {
+  "type": "sheet",
+  "path": "modified/automation/machine_electrifier.png",
+  "fw": 39,
+  "fh": 32
+ },
+ "m_recycler": {
+  "type": "sheet",
+  "path": "modified/automation/machine_recycler.png",
+  "fw": 39,
+  "fh": 38
+ },
+ "ic_weapons": {
+  "type": "sheet",
+  "path": "vendor/rpg-icons-16/16x16 Assorted RPG Icons/16x16 Assorted RPG Icons/weapons.png",
+  "fw": 16,
+  "fh": 16
+ },
+ "ic_books": {
+  "type": "sheet",
+  "path": "vendor/rpg-icons-16/16x16 Assorted RPG Icons/16x16 Assorted RPG Icons/books.png",
+  "fw": 16,
+  "fh": 16
+ },
+ "ic_potions": {
+  "type": "sheet",
+  "path": "vendor/rpg-icons-16/16x16 Assorted RPG Icons/16x16 Assorted RPG Icons/potions.png",
+  "fw": 16,
+  "fh": 16
+ },
+ "ic_chests": {
+  "type": "sheet",
+  "path": "vendor/rpg-icons-16/16x16 Assorted RPG Icons/16x16 Assorted RPG Icons/chests.png",
+  "fw": 16,
+  "fh": 16
+ },
+ "res_wood": {
+  "type": "image",
+  "path": "modified/icons/res_wood.png"
+ },
+ "res_gold": {
+  "type": "image",
+  "path": "modified/icons/res_gold.png"
+ },
+ "ui_paper": {
+  "type": "image",
+  "path": "modified/ui/paper_9slice.png"
+ },
+ "ui_btn_blue": {
+  "type": "image",
+  "path": "modified/ui/btn_blue_9slice.png"
+ },
+ "ui_btn_red": {
+  "type": "image",
+  "path": "modified/ui/btn_red_9slice.png"
+ },
+ "ui_ribbons": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/UI Elements/UI Elements/Ribbons/SmallRibbons.png",
+  "fw": 64,
+  "fh": 64
+ },
+ "ui_avatar_gm": {
+  "type": "image",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/UI Elements/UI Elements/Human Avatars/Avatars_01.png"
+ },
+ "kenney": {
+  "type": "sheet",
+  "path": "vendor/kenney-ui-pixel-adventure/Tilesheets/Large tiles/Thick outline/tilemap_packed.png",
+  "fw": 32,
+  "fh": 32
+ },
+ "warrior_y_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Yellow Units/Warrior/Warrior_Idle.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "warrior_y_run": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Yellow Units/Warrior/Warrior_Run.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "enemy_archer_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Purple Units/Archer/Archer_Idle.png",
+  "fw": 192,
+  "fh": 192
+ },
+ "enemy_monk_idle": {
+  "type": "sheet",
+  "path": "vendor/tiny-swords/Tiny Swords (Free Pack)/Units/Red Units/Monk/Idle.png",
+  "fw": 192,
+  "fh": 192
+ }
+}
