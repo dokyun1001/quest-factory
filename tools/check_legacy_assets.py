@@ -16,7 +16,8 @@ FORBIDDEN = ["tiny swords", "tiny-swords", "tinyswords", "pixel frog", "pixelfro
              "automation tileset", "merchant shade", "merchant-shade", "kenney", "galmuri", "atlas/page0", "vendor/",
              "modified/", "_archives", "questfactory.save.v1"]
 APPROVED_PACKAGES = {"QUEST_FACTORY_ART_005R1_R2_VERIFIED_110FILES.zip", "FRANUKA_CHARACTER_BASE_FREE_DEMO.zip",
-                     "QUEST_FACTORY_ART_004.zip", "FRANUKA_RPG_ICON_FREE_DEMO.zip"}
+                     "QUEST_FACTORY_ART_004.zip", "FRANUKA_RPG_ICON_FREE_DEMO.zip",
+                     "QUEST_FACTORY_ART_006R1_CONNECTION_PATCH_41FILES.zip"}
 
 
 def main(dist):

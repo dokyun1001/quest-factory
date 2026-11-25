@@ -25,6 +25,7 @@ PKG_005R = "packages/QUEST_FACTORY_ART_005R1_R2_VERIFIED_110FILES.zip"
 PKG_CHAR = "packages/FRANUKA_CHARACTER_BASE_FREE_DEMO.zip"
 PKG_HAIR = "packages/QUEST_FACTORY_ART_004.zip"
 PKG_ICON = "packages/FRANUKA_RPG_ICON_FREE_DEMO.zip"
+PKG_006R1 = "patch:QUEST_FACTORY_ART_006R1_CONNECTION_PATCH_41FILES.zip"   # ART 006-R1 (patch, separate zip)
 
 
 def allow_list():
@@ -52,7 +53,22 @@ def allow_list():
     out.append(("ui_storage", PKG_ICON, ic + "27.png", None))   # chest  -> storage
     out.append(("ui_save", PKG_ICON, ic + "34.png", None))      # floppy -> save
     out.append(("ui_settings", PKG_ICON, ic + "35.png", None))  # gear   -> settings
+    # ART 006-R1: 1x1 small miner (4 dirs) + furnace (4 dirs, off / active 6f / ember 6f, precomposed)
+    for d in "NESW":
+        out.append((f"miner_s_{d}", PKG_006R1, f"1x/miner/small_miner_{d}.png", None))
+        out.append((f"furnace_{d}_off", PKG_006R1, f"1x/furnace/furnace_{d}_off.png", None))
+        for st in ("active", "ember"):
+            for f in range(6):
+                out.append((f"furnace_{d}_{st}_{f}", PKG_006R1, f"1x/furnace/furnace_{d}_{st}_sheet.png", (f * 32, 0, 32, 32)))
     return out
+
+
+def strip(o, keys=("edge_signature_rgba", "edge_pixels_rgba", "source_preserved_sha256")):
+    if isinstance(o, dict):
+        return {k: strip(v) for k, v in o.items() if k not in keys}
+    if isinstance(o, list):
+        return [strip(v) for v in o]
+    return o
 
 
 def sha(b):
@@ -62,6 +78,7 @@ def sha(b):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--zip", default=os.path.join(ROOT, "assets", "QUEST_FACTORY_DEV_RESTART_006.zip"))
+    ap.add_argument("--patch-dir", default=os.path.join(ROOT, "assets", "patches"))
     ap.add_argument("--out", default=os.path.join(ROOT, "web", "src", "gen"))
     a = ap.parse_args()
     if not os.path.isfile(a.zip):
@@ -72,7 +89,17 @@ def main():
     expected = {p["path"]: p["sha256"] for p in manifest["packages"]}
 
     inner = {}
+    patch_manifest = json.load(open(os.path.join(a.patch_dir, "PATCH_MANIFEST.json")))
+    patch_sha = {os.path.basename(p["path"]): p["sha256"] for p in patch_manifest["packages"]}
     def pkg(path):
+        if path.startswith("patch:"):
+            name = path[6:]
+            if path not in inner:
+                data = open(os.path.join(a.patch_dir, name), "rb").read()
+                if sha(data) != patch_sha.get(name):
+                    sys.exit(f"[pack] SHA-256 mismatch for patch {name}")
+                inner[path] = zipfile.ZipFile(io.BytesIO(data))
+            return inner[path]
         if path not in inner:
             data = outer.read(path)
             got = sha(data)
@@ -89,12 +116,12 @@ def main():
             x, y, w, h = crop
             im = im.crop((x, y, x + w, y + h))
         frames.append((name, im))
-        provenance.append({"frame": name, "package": os.path.basename(p), "file": inner_path, "sha256": sha(raw)})
+        provenance.append({"frame": name, "package": os.path.basename(p.replace("patch:", "")), "file": inner_path, "sha256": sha(raw)})
 
     # Shelf packing, 1px edge extrusion + 1px gap (prevents texture bleeding at any zoom)
     PAD = 2
     frames.sort(key=lambda f: (-f[1].height, -f[1].width, f[0]))
-    W = 256
+    W = 512
     x = y = shelf_h = 0
     rects = {}
     for name, im in frames:
@@ -143,10 +170,13 @@ def main():
         "hair_palettes": hair_pal,
         "belt": {k: art005["belt"][k] for k in ("frame_ms", "frame_count", "direction_semantics")},
         "facilities": art005["facilities"],
+        "art006r1": {k: strip(v) for k, v in json.loads(pkg(PKG_006R1).read("metadata.json")).items() if k in ("miner", "furnace", "revision", "limitations", "patch_base")},
         "provenance": provenance,
     }
     with open(os.path.join(a.out, "artmeta.json"), "w") as f:
         json.dump(meta, f, indent=1, ensure_ascii=False)
+    with open(os.path.join(a.out, "artmeta.js"), "w") as f:   # same data as an ES module (usable from Node tests)
+        f.write("export default " + json.dumps({k: v for k, v in meta.items() if k != "provenance"}, ensure_ascii=False) + ";\n")
     print(f"[pack] {len(frames)} frames -> atlas {W}x{H} ({len(png)} bytes) sha256={meta['atlas_sha256'][:16]}")
 
 

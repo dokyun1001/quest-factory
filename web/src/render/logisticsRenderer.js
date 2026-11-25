@@ -3,10 +3,13 @@
 // - Belts live in 16x16-tile chunk Blitters; chunks outside the camera are hidden and not animated.
 // - Items use one Blitter with a reusable Bob pool; only on-screen items get a Bob.
 import { TILE, BELT_FRAME_MS } from '../core/config.js';
+import { B } from '../data/balance.js';
 import { EDGE } from '../core/dir.js';
 import { ITEMS } from '../data/items.js';
 
 const CH = 16; // chunk size in tiles
+const TIER_TINT = [0xffffff, 0xbfe3ff, 0xffd9a0, 0xe0b8ff, 0xfff28a];
+void B;
 const SHAPES = ['WE', 'WN', 'WS', 'EW', 'EN', 'ES', 'NW', 'NE', 'NS', 'SW', 'SE', 'SN'];
 
 export class LogisticsRenderer {
@@ -15,14 +18,15 @@ export class LogisticsRenderer {
     const atlas = scene.textures.get('atlas');
     this.beltFrames = {}; this.dirFrames = {};
     for (const s of SHAPES) { this.beltFrames[s] = [0, 1, 2, 3].map((f) => atlas.get(`belt_${s}_${f}`)); this.dirFrames[s] = atlas.get(`dir_${s}`); }
+    const icons = scene.textures.get('icons');
     this.itemFrames = {};
-    for (const id of Object.keys(ITEMS)) for (const sz of [8, 10, 12]) this.itemFrames[`${id}_${sz}`] = atlas.get(`item_${id}_${sz}`);
+    for (const id of Object.keys(ITEMS)) for (const sz of [8, 10, 12]) this.itemFrames[`${id}_${sz}`] = icons.get(`i_${id}_${sz}`);
     this.chunks = new Map(); // key -> {belt: Blitter, dir: Blitter, count}
     this.bobOf = new Map();  // belt -> {b: Bob, d: Bob, chunk}
     this.phase = 0; this.phaseTime = 0;
     this.showDirs = false;
     this.itemSize = 10;
-    this.items = scene.add.blitter(0, 0, 'atlas').setDepth(5);
+    this.items = scene.add.blitter(0, 0, 'icons').setDepth(5);
     this.itemBobs = []; this.itemUsed = 0;
     this.visibleItems = []; // for hover lookup: [x,y,itemId]
     this.visibleChunks = 0;
@@ -49,6 +53,7 @@ export class LogisticsRenderer {
     } else {
       r.b.setFrame(this.beltFrames[shape][this.phase]); r.d.setFrame(this.dirFrames[shape]);
     }
+    r.b.setTint(TIER_TINT[b.tier] || 0xffffff);   // PLACEHOLDER: upper belt tiers are tinted until tier art exists
   }
   remove(b) {
     const r = this.bobOf.get(b); if (!r) return;

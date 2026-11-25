@@ -3,7 +3,7 @@
 // Composition happens ONLY when an appearance is first needed; the result is cached by appearance key
 // and shared by every character with the same look (reference counted).
 import { HAIRS, HAIR_SOURCE, OUTFITS, SHIRT_SOURCE, SHIRT_PALETTES, appearanceKey } from '../data/appearance.js';
-import artmeta from '../gen/artmeta.json';
+import artmeta from '../gen/artmeta.js';
 
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const ROLES = ['outline', 'shadow', 'base', 'highlight'];
