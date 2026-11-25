@@ -3,17 +3,153 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QUEST FACTORY 체험판</title>
+  <title>QUEST FACTORY — 개발 빌드 006</title>
+  <meta http-equiv="Cache-Control" content="no-cache" />
   <style>
-    @font-face { font-family: 'Galmuri11'; src: url('fonts/Galmuri11.woff2') format('woff2'); font-weight: 400; }
-    @font-face { font-family: 'Galmuri11'; src: url('fonts/Galmuri11-Bold.woff2') format('woff2'); font-weight: 700; }
-    html, body { margin: 0; height: 100%; background: #1d2a30; overflow: hidden; }
-    #game { width: 100vw; height: 100vh; }
-    canvas { image-rendering: pixelated; display: block; outline: none; }
+    :root { --bg:#1e2622; --panel:#2b2421; --panel2:#3a302b; --line:#120d0e; --text:#f4ead6; --muted:#c3b49a; --accent:#e9b75a; --ok:#7be08a; --bad:#ff7a6e; --info:#76b7ff; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; height:100%; background:var(--bg); overflow:hidden; color:var(--text);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif; font-size:14px; }
+    #game { position:fixed; inset:0; }
+    canvas { image-rendering: pixelated; display:block; outline:none; }
+    .hidden { display:none !important; }
+    button { font:inherit; color:var(--text); background:var(--panel2); border:2px solid var(--line); border-radius:6px; padding:6px 10px; cursor:pointer;
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,.25); }
+    button:hover { background:#4a3d35; } button.on { background:#7a5a2e; border-color:var(--accent); }
+    button:disabled { opacity:.45; cursor:default; }
+    .panel { background:rgba(43,36,33,.95); border:2px solid var(--line); border-radius:8px; box-shadow:0 4px 0 rgba(0,0,0,.3); }
+    /* screens */
+    .screen { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 35%, #3b4a36 0%, #1a211d 70%); z-index:20; padding:16px; }
+    .title-box { text-align:center; max-width:560px; width:100%; }
+    .title-box h1 { font-size:44px; letter-spacing:4px; margin:0 0 4px; color:var(--accent); text-shadow:0 4px 0 #120d0e; }
+    .title-box .sub { color:var(--muted); margin-bottom:24px; }
+    .menu { display:flex; flex-direction:column; gap:10px; max-width:320px; margin:0 auto; }
+    .menu button { font-size:17px; padding:12px; }
+    .note { color:var(--muted); font-size:12px; margin-top:20px; line-height:1.6; }
+    .modal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,12,10,.6); z-index:30; padding:16px; }
+    .modal .panel { padding:18px; max-width:760px; width:100%; max-height:92vh; overflow:auto; }
+    .modal h2 { margin:0 0 12px; color:var(--accent); font-size:20px; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:6px 0; }
+    .lbl { width:120px; color:var(--muted); flex-shrink:0; }
+    .creator { display:grid; grid-template-columns: 260px 1fr; gap:16px; }
+    @media (max-width:640px) { .creator { grid-template-columns:1fr; } }
+    #cr-preview { background:#4f7a3f; border:2px solid var(--line); border-radius:6px; width:256px; height:200px; image-rendering:pixelated; }
+    .swatch { width:26px; height:26px; padding:0; border-radius:4px; }
+    /* HUD */
+    #hud { position:fixed; left:10px; top:10px; padding:8px 12px; z-index:10; pointer-events:none; line-height:1.55; max-width:min(420px, calc(100vw - 20px)); }
+    #hud b { color:var(--accent); }
+    #inv { font-size:12px; color:var(--muted); }
+    #topright { position:fixed; right:10px; top:10px; display:flex; gap:6px; z-index:10; flex-wrap:wrap; justify-content:flex-end; max-width:60vw; }
+    #topright button { display:flex; align-items:center; gap:6px; }
+    .icon { width:32px; height:32px; image-rendering:pixelated; }
+    .icon16 { width:16px; height:16px; image-rendering:pixelated; }
+    #toolbar { position:fixed; left:50%; bottom:10px; transform:translateX(-50%); display:flex; gap:6px; padding:6px; z-index:10; flex-wrap:wrap; justify-content:center; max-width:calc(100vw - 20px); }
+    #toolbar button { min-width:84px; display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; padding:4px 8px; }
+    #toolbar canvas { width:32px; height:32px; }
+    #toolbar .key { color:var(--muted); font-size:10px; }
+    #inspector { position:fixed; right:10px; top:64px; width:260px; padding:10px 12px; z-index:10; line-height:1.6; }
+    #inspector h3 { margin:0 0 6px; color:var(--accent); font-size:15px; }
+    #testpanel { position:fixed; left:10px; bottom:84px; padding:10px; z-index:10; width:250px; }
+    #testpanel h3 { margin:0 0 6px; font-size:14px; color:var(--accent); }
+    #testpanel .row button { padding:4px 8px; font-size:12px; }
+    #debug { position:fixed; left:10px; top:150px; padding:8px 10px; z-index:10; font-family:ui-monospace,Consolas,monospace; font-size:12px; white-space:pre; pointer-events:none; }
+    #tooltip { position:fixed; z-index:15; pointer-events:none; padding:3px 8px; background:rgba(18,13,14,.92); border:1px solid var(--accent); border-radius:4px; font-size:13px; }
+    #toast { position:fixed; left:50%; top:14px; transform:translateX(-50%); z-index:16; display:flex; flex-direction:column; gap:6px; align-items:center; pointer-events:none; }
+    #toast div { background:rgba(18,13,14,.92); border:2px solid var(--line); border-radius:6px; padding:6px 12px; transition:opacity .4s; max-width:90vw; }
+    .cmp { display:grid; grid-template-columns: 90px repeat(3, 1fr); gap:6px; align-items:center; }
+    .cmp canvas { background:#3c4a52; border-radius:3px; image-rendering:pixelated; }
+    table.kv { border-collapse:collapse; } table.kv td { padding:2px 8px 2px 0; vertical-align:top; }
+    a { color:var(--info); }
+    .tag { display:inline-block; font-size:11px; padding:0 6px; border-radius:8px; background:#5a3b2b; color:#ffd9b0; margin-left:4px; }
   </style>
-  <script type="module" crossorigin src="./assets/index-iWnmgBT6.js"></script>
+  <script type="module" crossorigin src="./qf006/index-DdcxrFbn.js"></script>
 </head>
 <body>
   <div id="game"></div>
+
+  <div id="scr-loading" class="screen"><div class="title-box"><h1>QUEST FACTORY</h1><div class="sub">불러오는 중…</div></div></div>
+
+  <div id="scr-title" class="screen hidden">
+    <div class="title-box">
+      <h1>QUEST FACTORY</h1>
+      <div class="sub">길드 경영 × 공장 자동화 — 개발 빌드 006 (단계 1 테스트)</div>
+      <div class="menu">
+        <button id="bt-continue" class="hidden">이어하기</button>
+        <button id="bt-new">새 게임</button>
+        <button id="bt-test">테스트 배치 (물류·성능 시험)</button>
+        <button id="bt-credits">크레딧 · 라이선스</button>
+      </div>
+      <div class="note">이 빌드는 새로 개발 중인 테스트 판입니다. 이전 체험판의 저장 데이터는 사용하지 않으며 지우지도 않습니다.<br>지형·나무·길드 건물·임시 공급기/저장소는 정식 아트가 아닌 임시 표시입니다.</div>
+    </div>
+  </div>
+
+  <div id="md-creator" class="modal hidden"><div class="panel">
+    <h2>길드마스터 외형</h2>
+    <div class="creator">
+      <div>
+        <canvas id="cr-preview" width="256" height="200"></canvas>
+        <div class="row"><button id="cr-random">무작위</button><span class="note" style="margin:0">4방향 걷기 미리보기</span></div>
+      </div>
+      <div>
+        <div class="row"><span class="lbl">체형</span><span id="cr-body"></span></div>
+        <div class="row"><span class="lbl">피부</span><span id="cr-skin" class="row" style="margin:0"></span></div>
+        <div class="row"><span class="lbl">머리</span><span id="cr-hair" class="row" style="margin:0"></span></div>
+        <div class="row"><span class="lbl">머리 색</span><span id="cr-hairpal" class="row" style="margin:0"></span></div>
+        <div class="row"><span class="lbl">눈</span><span id="cr-eyes"></span></div>
+        <div class="row"><span class="lbl">의상</span><span id="cr-outfit"></span></div>
+        <div class="row"><span class="lbl">의상 색</span><span id="cr-outpal" class="row" style="margin:0"></span></div>
+        <div class="note" style="margin-top:8px">현재 전체 이동 동작이 완성된 외형만 선택할 수 있습니다 (Medium 체형, HAIR_001/민머리, 기본 셔츠). 정면 시안만 있는 머리·의상, Big/Small 체형은 검증 후 추가됩니다. 셔츠 색 변형은 시험 색입니다.</div>
+      </div>
+    </div>
+    <div class="row" style="justify-content:flex-end; margin-top:12px"><button id="cr-cancel">취소</button><button id="cr-ok" class="on">이 외형으로 시작</button></div>
+  </div></div>
+
+  <div id="md-settings" class="modal hidden"><div class="panel">
+    <h2>설정</h2>
+    <div class="row"><span class="lbl">운송 아이템 크기</span><span id="st-size" class="row" style="margin:0"></span></div>
+    <div class="row"><span class="lbl">방향 표시</span><label><input type="checkbox" id="st-dirs"> 직접 조작 중에도 항상 표시</label></div>
+    <h2 style="margin-top:14px; font-size:16px">아이템 크기 비교 (ART 005-R, 실제 컨베이어 위 4배 확대)</h2>
+    <div id="st-cmp" class="cmp"></div>
+    <div class="row" style="justify-content:flex-end; margin-top:12px"><button id="st-appearance">길드마스터 외형 변경</button><button id="st-close" class="on">닫기</button></div>
+  </div></div>
+
+  <div id="md-credits" class="modal hidden"><div class="panel">
+    <h2>크레딧 · 라이선스</h2>
+    <p><b>Fantasy RPG Character Base (FREE DEMO)</b> — Franuka · <a href="https://franuka.itch.io/" target="_blank" rel="noopener">franuka.itch.io</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>
+      <span class="note">변경: Medium 체형·셔츠를 게임 내에서 머리 레이어와 합성, 셔츠 색상 변경(시험), 아틀라스로 재포장.</span></p>
+    <p><b>Fantasy RPG Icon Pack (Demo)</b> — Franuka · <a href="https://franuka.itch.io/" target="_blank" rel="noopener">franuka.itch.io</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br>
+      <span class="note">변경: 상자·디스크·톱니 아이콘 3종을 UI 버튼에 사용, 아틀라스로 재포장.</span></p>
+    <p><b>QUEST FACTORY 자체 제작 아트</b> — ART 004 (HAIR_001, 머리 색 팔레트), ART 005-R (컨베이어 12방향·애니메이션·방향 표시, 운송 아이템 8종, 수정 채굴기·제련기)</p>
+    <p><b>Phaser 3</b> — MIT License</p>
+    <p class="note">지형·나무·길드 건물·임시 공급기/저장소는 정식 아트가 나오기 전까지 사용하는 자체 임시 표시입니다.</p>
+    <div class="row" style="justify-content:flex-end"><button id="cd-close" class="on">닫기</button></div>
+  </div></div>
+
+  <div id="ingame" class="hidden">
+    <div id="hud" class="panel"></div>
+    <div id="topright">
+      <button id="bt-roster" class="hidden" title="모험가 (시험)">모험가</button>
+      <button id="bt-save" title="저장"><canvas class="icon16" data-icon="ui_save"></canvas>저장</button>
+      <button id="bt-settings" title="설정"><canvas class="icon16" data-icon="ui_settings"></canvas>설정</button>
+      <button id="bt-menu">메뉴</button>
+    </div>
+    <div id="toolbar" class="panel"></div>
+    <div id="inspector" class="panel hidden"></div>
+    <div id="testpanel" class="panel hidden">
+      <h3>테스트 · 벤치마크</h3>
+      <div class="row">컨베이어 <button data-belts="100">+100</button><button data-belts="500">+500</button><button data-belts="0">지우기</button></div>
+      <div class="row">캐릭터 <button data-chars="1">1</button><button data-chars="10">10</button><button data-chars="50">50</button><button data-chars="100">100</button><button data-chars="0">0</button></div>
+      <div class="note" style="margin-top:4px">F3: 성능 표시 · 벤치마크 컨베이어는 아래쪽 빈 영역에 배치됩니다.</div>
+    </div>
+    <div id="debug" class="panel hidden"></div>
+  </div>
+  <div id="md-roster" class="modal hidden"><div class="panel">
+    <h2>모험가 (단계 1 시험: 공통 외형 무작위 생성·저장)</h2>
+    <div id="rs-list"></div>
+    <div class="row" style="justify-content:flex-end; margin-top:12px"><button id="rs-recruit">시험 모집</button><button id="rs-close" class="on">닫기</button></div>
+    <div class="note">직업별 의상·장비 아트는 아직 없어 직업은 이름표로만 표시됩니다. 의뢰 배정은 단계 2에서 구현합니다.</div>
+  </div></div>
+  <div id="tooltip" class="hidden"></div>
+  <div id="toast"></div>
 </body>
 </html>
