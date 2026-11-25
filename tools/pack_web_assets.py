@@ -51,10 +51,8 @@ def main():
     os.makedirs(os.path.join(OUT, 'atlas'))
     index = {'pages': [], 'textures': {}}
     for pi, pg in enumerate(pages):
-        used_h = pg['y']
-        hpow = 1
-        while hpow < used_h:
-            hpow *= 2
+        # no power-of-two padding: only the used height (rounded to 16) goes to the GPU
+        hpow = (pg['y'] + 15) // 16 * 16
         canvas = Image.new('RGBA', (PAGE, hpow), (0, 0, 0, 0))
         frames = {}
         for k, (p, x, y) in place.items():
