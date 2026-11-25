@@ -1,13 +1,13 @@
-# Builds the web demo and publishes it to the gh-pages branch (GitHub Pages).
-# The art lives in the PRIVATE repo dokyun1001/quest-factory-assets, so this needs a
-# repository secret ASSETS_TOKEN (fine-grained token, read-only "Contents" on that repo).
-# Without the secret the workflow does nothing and reports why (no failure).
-name: Deploy web demo
+# QUEST FACTORY 006 — builds the new web test build and publishes it to the gh-pages branch.
+# Art comes ONLY from QUEST_FACTORY_DEV_RESTART_006.zip in the PRIVATE repo
+# dokyun1001/quest-factory-assets (secret ASSETS_TOKEN, read-only). Legacy asset folders are never read.
+# gh-pages is updated with a normal (non-force) commit so every previous deployment stays recoverable.
+name: Deploy web build (006)
 
 on:
   push:
     branches: [main]
-    paths: ['web/**', 'tools/pack_web_assets.py', '.github/workflows/deploy-web.yml']
+    paths: ['web/**', 'tools/**', '.github/workflows/deploy-web.yml']
   workflow_dispatch:
 
 permissions:
@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: deploy-web
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
         if: steps.token.outputs.ok == 'true'
 
-      - name: Fetch private assets
+      - name: Fetch approved asset package (private)
         if: steps.token.outputs.ok == 'true'
         uses: actions/checkout@v4
         with:
@@ -56,21 +56,24 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Build
+      - name: Build (pack 006 atlas -> vite build -> legacy asset check)
         if: steps.token.outputs.ok == 'true'
         working-directory: web
         run: |
           pip install pillow==11.0.0
           npm ci
+          node test/sim.test.mjs
           npm run build
 
-      - name: Publish to gh-pages
+      - name: Publish to gh-pages (normal commit, no force)
         if: steps.token.outputs.ok == 'true'
         run: |
-          cd web/dist
+          git clone --depth 1 --branch gh-pages "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" pages
+          cd pages
+          git rm -rq --ignore-unmatch .
+          cp -r ../web/dist/. .
           touch .nojekyll
-          git init -q -b gh-pages
           git add -A
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -q -m "Deploy web demo from ${GITHUB_SHA::7}"
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+            commit -q -m "Deploy 006 web build from ${GITHUB_SHA::7}" || { echo "No changes"; exit 0; }
+          git push origin gh-pages

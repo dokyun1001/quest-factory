@@ -1,22 +1,18 @@
 {
-  "name": "quest-factory-web",
-  "version": "1.0.0",
-  "description": "",
+  "name": "quest-factory-web-006",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
   "scripts": {
+    "pack": "python3 ../tools/pack_assets_006.py",
     "dev": "vite",
-    "build": "python3 ../tools/pack_web_assets.py && vite build",
-    "pack": "python3 ../tools/pack_web_assets.py"
+    "build": "python3 ../tools/pack_assets_006.py && vite build && python3 ../tools/check_legacy_assets.py dist",
+    "preview": "vite preview"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "galmuri": "^2.40.3",
-    "phaser": "^3.90.0"
+    "phaser": "3.90.0"
   },
   "devDependencies": {
-    "vite": "^6.3.5"
-  },
-  "private": true,
-  "type": "module"
+    "vite": "6.3.5"
+  }
 }

@@ -1,3 +1,5 @@
-# 원본 그림은 라이선스상 공개 재배포 금지 → 비공개 저장소 quest-factory-assets 를 assets 로 받아서 사용
+# Private art repo checkout (never committed to this public repo)
 /assets
 node_modules/
+web/dist/
+web/src/gen/

@@ -1,30 +1,42 @@
 # QUEST FACTORY
 
-귀엽고 밝은 중세 판타지풍 2D 탑다운 픽셀아트 **길드 운영 + 공장 자동화** 게임입니다.
+중세 판타지 **길드 경영 × 공장 자동화** 2D 탑다운 픽셀아트 게임 — 웹 개발 빌드 006 (전면 재개발, 단계 1)
 
-## ▶ 웹 체험판: https://dokyun1001.github.io/quest-factory/
+## ▶ 플레이: https://dokyun1001.github.io/quest-factory/
 
-- 현재 체험판: Phaser 3 웹 버전 (`web/`) — 사용자 승인에 따른 빠른 체험판
-- 정식 엔진: Unity 6 LTS + C# (추후 착수)
-- 개발 보고서: [docs/REPORT_001.md](docs/REPORT_001.md) · 배포 안내: [docs/DEPLOY.md](docs/DEPLOY.md)
-- 이전 현황 보고: [docs/STATUS_001B.md](docs/STATUS_001B.md)
-- 사용 에셋과 라이선스: [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md)
+- 엔진: Phaser 3.90 + JavaScript + Vite (Unity 전환은 별도 지시까지 보류)
+- 개발 보고서: [docs/DEV_REPORT_006.md](docs/DEV_REPORT_006.md)
+- 임시 표시 목록: [docs/PLACEHOLDERS_006.md](docs/PLACEHOLDERS_006.md) · 에셋 추가 방법: [docs/ADDING_ASSETS_006.md](docs/ADDING_ASSETS_006.md) · 배포: [docs/DEPLOY.md](docs/DEPLOY.md)
+- 에셋 라이선스: [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md)
+- 이전 구현(004/005 시기)은 태그 `backup/pre-006-main`, `backup/pre-006-gh-pages`에 보존되어 있습니다.
+
+## 조작
+| 키 | 기능 |
+|---|---|
+| WASD / 방향키 | 길드마스터 이동 (관리자 시점에서는 화면 이동) |
+| Tab | 직접 조작 ↔ 관리자 시점 |
+| 마우스 휠, + / - | 확대/축소 (정수 배율 1~6) |
+| 1~5 | 컨베이어 · 수정 채굴기 · 수정 제련기 · 임시 공급기 · 임시 저장소 |
+| X / 우클릭 | 삭제 |
+| R | 방향 회전 |
+| 좌클릭 드래그 | 컨베이어 연속 설치 (코너 자동) |
+| E | 채집 (나무, 발견한 광맥 옆) |
+| Q / Esc | 도구 해제 |
+| F3 | 성능 표시 |
 
 ## 저장소 구성
-| 저장소 | 공개 여부 | 내용 |
+| 저장소 | 공개 | 내용 |
 |---|---|---|
-| `dokyun1001/quest-factory` (이곳) | 공개 | 게임 코드, 문서, 도구, (추후) 웹 체험판 |
-| `dokyun1001/quest-factory-assets` | **비공개** | 무료 에셋 원본·가공본 (라이선스상 공개 재배포 금지) |
+| `dokyun1001/quest-factory` (이곳) | 공개 | 게임 코드, 문서, 도구 |
+| `dokyun1001/quest-factory-assets` | **비공개** | 아트 원본 (`QUEST_FACTORY_DEV_RESTART_006.zip` 등) |
 
-빌드할 때는 비공개 에셋 저장소를 `assets/` 폴더로 받아서 합칩니다. `assets/`는 `.gitignore`에 등록되어 있어 이 공개 저장소에는 절대 올라가지 않습니다.
+빌드는 비공개 저장소의 `QUEST_FACTORY_DEV_RESTART_006.zip` **하나만** 읽어 SHA-256을 검증한 뒤, 허용 목록의 그림만 아틀라스 1장으로 포장합니다. 원본 파일은 배포하지 않습니다.
 
-## 웹 체험판 빌드 (개발자용)
+## 개발자용 빌드
 ```bash
 git clone https://github.com/dokyun1001/quest-factory-assets assets   # 비공개, 권한 필요
-cd web && npm ci && npm run build      # 결과물: web/dist
+cd web && npm ci && node test/sim.test.mjs && npm run build             # 결과물: web/dist
 ```
-
-## 도구
-- `tools/build_art.py`: `assets/vendor`(원본)에서 슬라이싱·색감 보정본을 `assets/modified`로 생성합니다.
-- `tools/fetch_itch.py`: itch.io 공식 페이지에서 무료 파일을 다시 받습니다. 사용법: `python3 tools/fetch_itch.py <페이지 URL> <저장 폴더> [파일명 일부]`
-- `tools/pack_web_assets.py`: 게임에 쓰는 그림만 아틀라스로 다시 포장해 `web/.gen/`에 출력합니다. 원본 파일은 배포하지 않습니다.
+- `tools/pack_assets_006.py`: 006 패키지 검증 + 런타임 아틀라스 생성 (`web/src/gen/`, git 제외)
+- `tools/check_legacy_assets.py`: 배포 폴더에 이전 임시 에셋이 0건인지 검사 (빌드 시 자동 실행)
+- `web/test/`: 물류 시뮬레이션 단위 시험(Node), 브라우저 시험(Playwright)
