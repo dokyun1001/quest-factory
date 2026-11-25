@@ -3,6 +3,7 @@
 중세 판타지 **길드 경영 × 공장 자동화** 2D 탑다운 픽셀아트 게임 — 웹 개발 빌드 006 (전면 재개발, 단계 1)
 
 ## ▶ 플레이: https://dokyun1001.github.io/quest-factory/
+## ▶ 007 통합 테스트 빌드: https://dokyun1001.github.io/quest-factory/test007/ (브랜치 `feat/test-007`, 보고서 [docs/DEV_REPORT_007.md](docs/DEV_REPORT_007.md))
 
 - 엔진: Phaser 3.90 + JavaScript + Vite (Unity 전환은 별도 지시까지 보류)
 - 개발 보고서: [docs/DEV_REPORT_006.md](docs/DEV_REPORT_006.md)

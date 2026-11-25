@@ -7,6 +7,7 @@
 | Fantasy RPG Icon Pack (Demo) | Franuka | https://franuka.itch.io/ (https://franuka.itch.io/rpg-icon-pack-demo) | CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/ (팩 내 License and details.txt) | 16×16 아이콘 3종(상자 27, 디스크 34, 톱니 35)을 저장/설정 UI에 사용. 아틀라스로 **재포장**. 변경 없음. |
 | QUEST FACTORY ART 004 (HAIR_001, 머리 색 10종) | QUEST FACTORY 아트 담당 (자체 제작) | 비공개 저장소 | 프로젝트 소유 | 헤어 레이어에만 팔레트 치환 |
 | QUEST FACTORY ART 005-R1/R2 (컨베이어 12방향·4프레임, 방향 표시, 운송 아이템 8종×3크기, 수정 채굴기/제련기) | QUEST FACTORY 아트 담당 (자체 제작) | 비공개 저장소 | 프로젝트 소유 | 아틀라스로 재포장 |
+| QUEST FACTORY ART 006-R1 (소형 채굴기 4방향, 용광로 4방향 정지/작동/잔불) | QUEST FACTORY 아트 담당 (자체 제작) | 비공개 저장소 `patches/` | 프로젝트 소유 | 007 테스트 빌드에서 아틀라스로 재포장 |
 | Phaser 3.90.0 | Phaser Studio | https://phaser.io | MIT | 게임 엔진 |
 
 게임 내 **크레딧 · 라이선스** 화면에 위 내용을 표시합니다.
