@@ -13,6 +13,8 @@ async function start() {
     height: 720,
     backgroundColor: '#2a3d45',
     pixelArt: true,          // nearest-neighbour everywhere, no blur
+    powerPreference: 'high-performance', // laptops: prefer the dedicated GPU
+    fps: { target: 60, smoothStep: true },
     roundPixels: true,
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
     input: { mouse: { preventDefaultWheel: true } }, // wheel zooms the game, not the page

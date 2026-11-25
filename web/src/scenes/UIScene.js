@@ -15,12 +15,16 @@ export class UIScene extends Phaser.Scene {
     this.world = this.scene.get('World');
     this.dirty = true;
     this.modal = null;   // 'codex' | 'adv' | null
-    this.dyn = this.add.container(0, 0);
+    this.hud = this.add.container(0, 0);   // built once, numbers updated in place
+    this.dyn = this.add.container(0, 0);   // panels: rebuilt only when layout changes
+    this.buildHud();
 
     this.world.events.on('state', () => { this.dirty = true; });
     this.world.events.on('toast', (m) => this.toast(m));
     this.events.once('shutdown', () => { this.world.events.off('state'); this.world.events.off('toast'); });
 
+    // small FPS counter (helps diagnose lag on players' PCs)
+    this.fpsText = this.add.text(1274, 714, '', T(11, '#ffffff', { stroke: '#000000', strokeThickness: 3 })).setOrigin(1, 1).setDepth(100);
     this.toastText = this.add.text(640, 96, '', T(14, '#ffffff', { stroke: '#2a1a0a', strokeThickness: 5, align: 'center' }))
       .setOrigin(0.5).setDepth(100).setAlpha(0);
   }
@@ -73,50 +77,78 @@ export class UIScene extends Phaser.Scene {
   }
 
   // ── layout ───────────────────────────────────────────────────────────────
+  // Creating Text objects is expensive (each one is a canvas + GPU texture), so:
+  //  · HUD numbers: setText only when the value changed (checked 5×/s)
+  //  · panels: rebuilt when the layout changes, or ≤3×/s while a live panel is open
   update(time) {
-    if (!this.dirty || time - (this.lastBuild ?? 0) < 120) return;
-    this.dirty = false; this.lastBuild = time;
+    const w = this.world;
+    const sig = [w.mode, w.tool?.type, w.tool?.dir, w.selected ? `${w.selected.x},${w.selected.y},${w.selected.dir}` : '',
+      this.modal, this.hover, w.adventurers.length].join('|');
+    const livePanel = this.modal || (w.mode === 'manager' && w.selected);
+    if (sig !== this.sig || (this.dirty && livePanel && time - (this.lastBuild ?? 0) > 330)) {
+      this.sig = sig; this.lastBuild = time; this.dirty = false;
+      this.rebuildPanels();
+    }
+    if (time - (this.lastHud ?? 0) > 200) { this.lastHud = time; this.refreshHud(); }
+    if (time - (this.lastFps ?? 0) > 1000) {
+      this.lastFps = time;
+      const r = this.game.renderer.type === Phaser.WEBGL ? 'WebGL' : 'Canvas';
+      this.setIf(this.fpsText, `${Math.round(this.game.loop.actualFps)} FPS · ${r}`);
+    }
+  }
+
+  rebuildPanels() {
+    const w = this.world;
     this.dyn.removeAll(true);
-    const w = this.world, g = w.guild;
-    this.drawResources(g);
-    this.drawTopRight(w);
+    this.barIcons = [];
     if (w.mode === 'manager') { this.drawBuildBar(w); if (w.selected) this.drawInfo(w, w.selected); }
     else this.drawHint();
     if (this.modal === 'codex') this.drawCodex(w);
     if (this.modal === 'adv') this.drawAdventurers(w);
   }
 
-  drawResources(g) {
-    this.panel(6, 6, 330, 170);
-    const st = g.stock;
-    const rows = [['coin', st.coin], ['wood', st.wood], ['gold_ore', st.gold_ore]];
-    rows.forEach(([k, n], i) => {
-      this.icon(k, 46 + i * 100, 44);
-      this.text(76 + i * 100, 36, `${n ?? 0}`, T(16));
+  setIf(t, v) { if (t.text !== v) t.setText(v); }
+
+  buildHud() {
+    const h = this.hud, w = this.world;
+    this.panel(6, 6, 330, 170, h);
+    this.hudNums = {};
+    [['coin', 0], ['wood', 1], ['gold_ore', 2]].forEach(([k, i]) => {
+      this.icon(k, 46 + i * 100, 44, 1, h);
+      this.hudNums[k] = this.text(76 + i * 100, 36, '0', T(16), h);
     });
     ['loot_shadow', 'loot_violet', 'loot_crimson'].forEach((k, i) => {
-      this.icon(k, 46 + i * 100, 84, 0.67);
-      this.text(76 + i * 100, 76, `${st[k] ?? 0}`, T(16));
+      this.icon(k, 46 + i * 100, 84, 0.67, h);
+      this.hudNums[k] = this.text(76 + i * 100, 76, '0', T(16), h);
     });
-    const next = GUILD.expPerLevel[g.level] ?? null;
-    this.text(28, 112, `길드 Lv ${g.level}   경험치 ${g.exp}${next ? ` / ${next}` : ' (최대)'}`, T(12));
-    this.text(28, 134, `게시된 의뢰 ${g.quests}   연구 기록 ${g.notes}   완료 ${g.completed}`, T(12));
-  }
-
-  drawTopRight(w) {
-    const direct = w.mode === 'direct';
-    this.panel(860, 6, 414, 128);
-    this.text(1067, 32, direct ? '직접 조작 모드' : '관리자 모드', T(16, direct ? '#2b5a2b' : '#7a3a12')).setOrigin(0.5);
-    this.text(1067, 52, 'Tab 키로 모드 전환', T(11, '#6a5a44')).setOrigin(0.5);
-    this.button(872, 68, 92, '도감', () => this.toggleModal('codex'));
-    this.button(970, 68, 92, '모험가', () => this.toggleModal('adv'));
-    this.button(1068, 68, 92, '저장', () => w.save());
+    this.hudLine1 = this.text(28, 112, '', T(12), h);
+    this.hudLine2 = this.text(28, 134, '', T(12), h);
+    this.panel(860, 6, 414, 128, h);
+    this.hudMode = this.text(1067, 32, '', T(16)).setOrigin(0.5); h.add(this.hudMode);
+    this.text(1067, 52, 'Tab 키로 모드 전환', T(11, '#6a5a44'), h).setOrigin(0.5);
+    this.button(872, 68, 92, '도감', () => this.toggleModal('codex'), { parent: h });
+    this.button(970, 68, 92, '모험가', () => this.toggleModal('adv'), { parent: h });
+    this.button(1068, 68, 92, '저장', () => w.save(), { parent: h });
     this.button(1166, 68, 96, '새 게임', () => {
       if (window.confirm('저장 데이터를 지우고 새 게임을 시작할까요?')) w.resetGame();
-    }, { red: true });
+    }, { red: true, parent: h });
+    this.refreshHud();
   }
 
-  toggleModal(m) { this.modal = this.modal === m ? null : m; this.dirty = true; }
+  refreshHud() {
+    const w = this.world, g = w.guild, st = g.stock;
+    for (const [k, t] of Object.entries(this.hudNums)) this.setIf(t, `${st[k] ?? 0}`);
+    const next = GUILD.expPerLevel[g.level] ?? null;
+    this.setIf(this.hudLine1, `길드 Lv ${g.level}   경험치 ${g.exp}${next ? ` / ${next}` : ' (최대)'}`);
+    this.setIf(this.hudLine2, `게시된 의뢰 ${g.quests}   연구 기록 ${g.notes}   완료 ${g.completed}`);
+    const direct = w.mode === 'direct';
+    if (this.hudMode.text !== (direct ? '직접 조작 모드' : '관리자 모드')) {
+      this.hudMode.setText(direct ? '직접 조작 모드' : '관리자 모드').setColor(direct ? '#2b5a2b' : '#7a3a12');
+    }
+    for (const [type, im] of this.barIcons ?? []) im.setAlpha(w.canAfford(FACILITY_DEFS[type].cost) ? 1 : 0.4);
+  }
+
+  toggleModal(m) { this.modal = this.modal === m ? null : m; }
 
   drawHint() {
     this.panel(280, 650, 720, 64);
@@ -135,11 +167,12 @@ export class UIScene extends Phaser.Scene {
       const fr = this.add.image(x, y, 'kenney', on ? 0 : 1).setOrigin(0).setScale(2);
       fr.setInteractive({ useHandCursor: true });
       fr.on('pointerdown', (p, lx, ly, ev) => { ev.stopPropagation(); w.setTool(on ? null : type); });
-      fr.on('pointerover', () => { this.hover = type; this.dirty = true; });
-      fr.on('pointerout', () => { if (this.hover === type) { this.hover = null; this.dirty = true; } });
+      fr.on('pointerover', () => { this.hover = type; });
+      fr.on('pointerout', () => { if (this.hover === type) this.hover = null; });
       const ic = FACILITIES[type].icon;
       const im = this.add.image(x + slot / 2, y + slot / 2, ic.tex, ic.frame ?? 0).setScale(ic.scale);
       if (!afford) im.setAlpha(0.4);
+      this.barIcons.push([type, im]);
       this.dyn.add([fr, im]);
       this.text(x + slot / 2, y + slot + 4, `${i + 1}`, T(11, '#6a5a44')).setOrigin(0.5, 0);
     });

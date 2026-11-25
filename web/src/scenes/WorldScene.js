@@ -52,7 +52,7 @@ export class WorldScene extends Phaser.Scene {
 
     // camera
     const cam = this.cameras.main;
-    cam.setBounds(0, 0, W * TILE, H * TILE).setRoundPixels(true).setBackgroundColor('#47aba9');
+    cam.setBounds(0, 0, W * TILE, H * TILE).setRoundPixels(true).setBackgroundColor(this.waterColor ?? '#47aba9');
     cam.startFollow(this.gm.sprite, true, 0.15, 0.15);
 
     this.setupInput();
@@ -78,15 +78,28 @@ export class WorldScene extends Phaser.Scene {
   isLand(x, y) { return x >= 1 && y >= 1 && x <= W - 2 && y <= H - 2; }
 
   buildTerrain() {
-    this.add.tileSprite(0, 0, W * TILE, H * TILE, 'water').setOrigin(0).setDepth(-3);
-    const rt = this.add.renderTexture(0, 0, W * TILE, H * TILE).setOrigin(0).setDepth(DEPTH.ground);
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      if (!this.isLand(x, y)) { this.blockers[y][x] = true; continue; }
-      const L = !this.isLand(x - 1, y), R = !this.isLand(x + 1, y), T = !this.isLand(x, y - 1), B = !this.isLand(x, y + 1);
-      const k = T ? (L ? 'tl' : R ? 'tr' : 't') : B ? (L ? 'bl' : R ? 'br' : 'b') : L ? 'l' : R ? 'r' : 'c';
-      rt.drawFrame('terrain', GRASS[k], x * TILE, y * TILE);
-      if (L || R || T || B) this.add.sprite(x * TILE + 32, y * TILE + 32, 'foam').play({ key: 'foam', startFrame: (x + y) % 8 }).setDepth(-2);
+    // Water = camera background colour (no full-screen sprite).
+    const c = this.textures.getPixel(32, 32, 'water');
+    if (c) this.waterColor = Phaser.Display.Color.RGBToString(c.red, c.green, c.blue);
+    // Ground = tilemap layer: only on-screen tiles are drawn each frame.
+    const data = [];
+    for (let y = 0; y < H; y++) {
+      const row = [];
+      for (let x = 0; x < W; x++) {
+        if (!this.isLand(x, y)) { this.blockers[y][x] = true; row.push(-1); continue; }
+        const L = !this.isLand(x - 1, y), R = !this.isLand(x + 1, y), T = !this.isLand(x, y - 1), B = !this.isLand(x, y + 1);
+        const k = T ? (L ? 'tl' : R ? 'tr' : 't') : B ? (L ? 'bl' : R ? 'br' : 'b') : L ? 'l' : R ? 'r' : 'c';
+        row.push(GRASS[k]);
+        // shoreline foam: every 2nd edge tile is enough (each foam sprite spans 3 tiles)
+        if ((L || R || T || B) && (x + y) % 2 === 0) {
+          this.add.sprite(x * TILE + 32, y * TILE + 32, 'foam').play({ key: 'foam', startFrame: (x * 3 + y) % 8 }).setDepth(-2);
+        }
+      }
+      data.push(row);
     }
+    const map = this.make.tilemap({ data, tileWidth: TILE, tileHeight: TILE });
+    const ts = map.addTilesetImage('terrain_ts', 'terrain_ts', TILE, TILE, 0, 0);
+    map.createLayer(0, ts, 0, 0).setDepth(DEPTH.ground);
   }
 
   block(x0, y0, w, h) {

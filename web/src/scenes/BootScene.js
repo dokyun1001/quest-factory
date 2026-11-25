@@ -21,6 +21,14 @@ export class BootScene extends Phaser.Scene {
     for (const [key, t] of Object.entries(index.textures)) {
       this.textures.addSpriteSheetFromAtlas(key, { atlas: t.page, frame: key, frameWidth: t.fw, frameHeight: t.fh });
     }
+    // Tilemaps need a standalone texture: copy the terrain tileset out of the atlas once.
+    const tf = index.textures.terrain;
+    if (tf) {
+      const fr = this.textures.getFrame(tf.page, 'terrain');
+      const ct = this.textures.createCanvas('terrain_ts', fr.width, fr.height);
+      ct.drawFrame(tf.page, 'terrain', 0, 0);
+      ct.refresh();
+    }
     for (const [key, a] of Object.entries(ANIMS)) {
       if (!TEXTURES[a.tex]) continue;
       const frames = a.from !== undefined
