@@ -129,8 +129,12 @@ export class UIScene extends Phaser.Scene {
     this.button(872, 68, 92, '도감', () => this.toggleModal('codex'), { parent: h });
     this.button(970, 68, 92, '모험가', () => this.toggleModal('adv'), { parent: h });
     this.button(1068, 68, 92, '저장', () => w.save(), { parent: h });
+    // in-game confirmation (browser confirm() dialogs are blocked in embedded viewers)
     this.button(1166, 68, 96, '새 게임', () => {
-      if (window.confirm('저장 데이터를 지우고 새 게임을 시작할까요?')) w.resetGame();
+      if (this.resetArmed) { w.resetGame(); return; }
+      this.resetArmed = true;
+      this.toast('한 번 더 누르면 저장을 지우고 새 게임을 시작합니다.');
+      this.time.delayedCall(3000, () => { this.resetArmed = false; });
     }, { red: true, parent: h });
     this.refreshHud();
   }
