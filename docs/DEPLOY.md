@@ -9,8 +9,8 @@
 - 비공개 저장소 읽기용 비밀값 `ASSETS_TOKEN`은 이미 등록되어 있습니다. 만료되면 저장소 **Settings → Secrets and variables → Actions**에서 같은 이름으로 새로 등록합니다(채팅에 붙여넣지 않습니다).
 
 ## 되돌리기
-- 이전 체험판 코드: 태그 `backup/pre-006-main`
-- 이전 공개 페이지: 태그 `backup/pre-006-gh-pages`
+- 이전 체험판 코드: 브랜치 `backup/pre-006-main`
+- 이전 공개 페이지: 브랜치 `backup/pre-006-gh-pages`
 - 되돌리려면 개발 담당에게 "006 이전 배포로 되돌려 달라"고 요청하면 됩니다.
 
 ## 저장 데이터

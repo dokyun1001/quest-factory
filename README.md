@@ -8,7 +8,7 @@
 - 개발 보고서: [docs/DEV_REPORT_006.md](docs/DEV_REPORT_006.md)
 - 임시 표시 목록: [docs/PLACEHOLDERS_006.md](docs/PLACEHOLDERS_006.md) · 에셋 추가 방법: [docs/ADDING_ASSETS_006.md](docs/ADDING_ASSETS_006.md) · 배포: [docs/DEPLOY.md](docs/DEPLOY.md)
 - 에셋 라이선스: [THIRD_PARTY_ASSETS.md](THIRD_PARTY_ASSETS.md)
-- 이전 구현(004/005 시기)은 태그 `backup/pre-006-main`, `backup/pre-006-gh-pages`에 보존되어 있습니다.
+- 이전 구현(004/005 시기)은 브랜치 `backup/pre-006-main`, `backup/pre-006-gh-pages`에 보존되어 있습니다.
 
 ## 조작
 | 키 | 기능 |
