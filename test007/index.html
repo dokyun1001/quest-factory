@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QUEST FACTORY — 통합 테스트 빌드 007</title>
+  <style>
+    :root { --bg:#1e2622; --panel:#2b2421; --panel2:#3a302b; --line:#120d0e; --text:#f4ead6; --muted:#c3b49a; --accent:#e9b75a; --ok:#7be08a; --bad:#ff7a6e; --info:#76b7ff; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; height:100%; background:var(--bg); overflow:hidden; color:var(--text);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif; font-size:13px; }
+    #game { position:fixed; inset:0; }
+    canvas { image-rendering: pixelated; display:block; outline:none; }
+    .hidden { display:none !important; }
+    button, select, input { font:inherit; color:var(--text); background:var(--panel2); border:2px solid var(--line); border-radius:6px; padding:4px 8px; }
+    button { cursor:pointer; box-shadow: inset 0 -3px 0 rgba(0,0,0,.25); }
+    button:hover { background:#4a3d35; } button.on { background:#7a5a2e; border-color:var(--accent); }
+    button:disabled { opacity:.45; cursor:default; }
+    input[type=number] { width:64px; }
+    .panel { background:rgba(43,36,33,.96); border:2px solid var(--line); border-radius:8px; box-shadow:0 4px 0 rgba(0,0,0,.3); }
+    .screen { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 35%, #3b4a36 0%, #1a211d 70%); z-index:20; padding:16px; overflow:auto; }
+    .title-box { text-align:center; max-width:640px; width:100%; }
+    .title-box h1 { font-size:42px; letter-spacing:4px; margin:0 0 4px; color:var(--accent); text-shadow:0 4px 0 #120d0e; }
+    .sub { color:var(--muted); margin-bottom:18px; }
+    .menu { display:grid; grid-template-columns:1fr 1fr; gap:8px; max-width:560px; margin:0 auto; }
+    .menu button { font-size:14px; padding:10px; text-align:left; } .menu button small { display:block; color:var(--muted); font-size:11px; }
+    .menu .wide { grid-column: 1 / -1; }
+    @media (max-width:560px) { .menu { grid-template-columns:1fr; } }
+    .note { color:var(--muted); font-size:12px; line-height:1.55; }
+    .modal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(10,12,10,.55); z-index:30; padding:12px; }
+    .modal > .panel { padding:14px; width:min(980px, 100%); max-height:94vh; overflow:auto; }
+    h2 { margin:0 0 10px; color:var(--accent); font-size:18px; } h3 { margin:10px 0 6px; color:var(--accent); font-size:14px; }
+    .row { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin:4px 0; }
+    .lbl { width:100px; color:var(--muted); flex-shrink:0; }
+    .tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; }
+    table { border-collapse:collapse; width:100%; } td, th { padding:3px 6px; border-bottom:1px solid #3e3430; text-align:left; vertical-align:top; } th { color:var(--muted); font-weight:600; }
+    tr.click:hover { background:#3a302b; cursor:pointer; }
+    .creator { display:grid; grid-template-columns: 260px 1fr; gap:16px; }
+    @media (max-width:640px) { .creator { grid-template-columns:1fr; } }
+    #cr-preview { background:#4f7a3f; border:2px solid var(--line); border-radius:6px; width:256px; height:200px; }
+    .swatch { width:24px; height:24px; padding:0; border-radius:4px; }
+    #hud { position:fixed; left:8px; top:8px; padding:8px 10px; z-index:10; pointer-events:none; line-height:1.5; max-width:min(380px, calc(100vw - 16px)); }
+    #hud b { color:var(--accent); }
+    #objectives { position:fixed; left:8px; top:132px; padding:8px 10px; z-index:10; width:250px; font-size:12px; line-height:1.55; }
+    #objectives .done { color:var(--ok); } #objectives .todo { color:var(--text); }
+    #topright { position:fixed; right:8px; top:8px; display:flex; gap:4px; z-index:10; flex-wrap:wrap; justify-content:flex-end; max-width:70vw; }
+    #hotbar { position:fixed; left:50%; bottom:8px; transform:translateX(-50%); display:flex; gap:3px; padding:5px; z-index:10; }
+    .slot { width:42px; height:42px; position:relative; background:#3a302b; border:2px solid var(--line); border-radius:5px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .slot.sel { border-color:var(--accent); background:#5a4630; } .slot .n { position:absolute; right:2px; bottom:0; font-size:11px; text-shadow:0 1px 0 #000; } .slot .k { position:absolute; left:3px; top:0; font-size:9px; color:var(--muted); }
+    .slot.pick { outline:2px dashed var(--info); }
+    .ic { image-rendering:pixelated; }
+    #inspector { position:fixed; right:8px; top:52px; width:290px; max-height:calc(100vh - 160px); overflow:auto; padding:10px 12px; z-index:10; line-height:1.55; }
+    #inspector h3 { margin:0 0 6px; }
+    #cmdbar { position:fixed; right:8px; bottom:64px; padding:6px; z-index:10; max-width:min(440px, 60vw); }
+    #cmdbar button { padding:3px 6px; font-size:12px; }
+    #debug { position:fixed; left:8px; bottom:64px; padding:8px 10px; z-index:10; font-family:ui-monospace,Consolas,monospace; font-size:11px; white-space:pre; pointer-events:none; }
+    #tooltip { position:fixed; z-index:15; pointer-events:none; padding:3px 8px; background:rgba(18,13,14,.92); border:1px solid var(--accent); border-radius:4px; font-size:12px; }
+    #toast { position:fixed; left:50%; top:10px; transform:translateX(-50%); z-index:40; display:flex; flex-direction:column; gap:4px; align-items:center; pointer-events:none; }
+    #toast div { background:rgba(18,13,14,.93); border:2px solid var(--line); border-radius:6px; padding:5px 12px; transition:opacity .4s; max-width:90vw; }
+    #toast div.rare { border-color:#ffd34d; } #toast div.boss { border-color:#ff5050; } #toast div.codex, #toast div.discover, #toast div.tech { border-color:var(--info); }
+    .tag { display:inline-block; font-size:10px; padding:0 6px; border-radius:8px; background:#5a3b2b; color:#ffd9b0; margin-left:4px; }
+    .bad { color:var(--bad); } .good { color:var(--ok); } .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(10, 42px); gap:3px; }
+    .craft { display:grid; grid-template-columns: minmax(220px, 1fr) minmax(260px, 1.2fr); gap:12px; }
+    @media (max-width:700px) { .craft { grid-template-columns:1fr; } }
+    .rlist { max-height:62vh; overflow:auto; }
+    .rrow { display:flex; align-items:center; gap:6px; padding:3px 4px; border-radius:4px; cursor:pointer; } .rrow:hover { background:#3a302b; } .rrow.sel { background:#5a4630; } .rrow.no { opacity:.55; }
+    .ing { display:flex; align-items:center; gap:6px; padding:2px 0; cursor:pointer; }
+    .chart { background:#1b1a1c; border:1px solid #3e3430; border-radius:4px; width:100%; height:180px; }
+    .kv { display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:4px 10px; }
+    .stars { color:#ffd34d; letter-spacing:-1px; }
+    a { color:var(--info); }
+  </style>
+  <script type="module" crossorigin src="./qf007/index-Cf5YD29r.js"></script>
+</head>
+<body>
+  <div id="game"></div>
+  <div id="scr-loading" class="screen"><div class="title-box"><h1>QUEST FACTORY</h1><div class="sub">불러오는 중…</div></div></div>
+  <div id="scr-title" class="screen hidden">
+    <div class="title-box">
+      <h1>QUEST FACTORY</h1>
+      <div class="sub">통합 게임성 · 장기 성장 테스트 빌드 007 (개발 테스트판, 수치는 모두 시험값)</div>
+      <div class="menu">
+        <button id="bt-continue" class="wide hidden">이어하기 — TEST A</button>
+        <button id="bt-new" class="wide"><b>TEST A — 새 게임</b><small>채집 → 제작 → 물류 → 종이·잉크 → 의뢰서 → 모험가 → 전리품 → 장비·연구 (20~30분)</small></button>
+        <button data-mode="sandbox"><b>개발자 샌드박스</b><small>TEST A 월드 + 개발자 메뉴 (별도 저장)</small></button>
+        <button data-mode="combat"><b>TEST B — 전투·지휘</b><small>4직업 전투, 시험 보스, 명령 비교</small></button>
+        <button data-lab="life"><b>TEST C — 모험가 인생</b><small>재능·원소·유전·세대교체, 대량 통계</small></button>
+        <button data-lab="econ"><b>TEST D — 경제</b><small>시장가·화폐량·장비 구매 시뮬레이션</small></button>
+        <button data-mode="perf"><b>TEST E — 성능</b><small>컨베이어 1만, 모험가 500, 주민 1,000</small></button>
+        <button id="bt-credits"><b>크레딧 · 라이선스</b><small>Franuka CC BY 4.0 외</small></button>
+      </div>
+      <div class="note" style="margin-top:14px">이 빌드는 정식 배포판(006)과 별도의 테스트 주소입니다. 저장은 새 키(qf007.*)만 쓰며 006/이전 저장은 건드리지 않습니다.<br>지형·나무·몬스터·대부분의 시설·일부 아이템은 정식 아트가 아닌 임시 그래픽입니다.</div>
+    </div>
+  </div>
+
+  <div id="md-creator" class="modal hidden"><div class="panel">
+    <h2>길드마스터 외형</h2>
+    <div class="creator">
+      <div><canvas id="cr-preview" width="256" height="200"></canvas><div class="row"><button id="cr-random">무작위</button></div></div>
+      <div>
+        <div class="row"><span class="lbl">피부</span><span id="cr-skin" class="row"></span></div>
+        <div class="row"><span class="lbl">머리</span><span id="cr-hair" class="row"></span></div>
+        <div class="row"><span class="lbl">머리 색</span><span id="cr-hairpal" class="row"></span></div>
+        <div class="row"><span class="lbl">의상 색</span><span id="cr-outpal" class="row"></span></div>
+        <div class="note">전체 이동 동작이 완성된 외형만 선택 가능합니다 (Medium 체형, HAIR_001/민머리, 기본 셔츠). 모험가도 같은 공통 에셋으로 무작위 생성됩니다.</div>
+      </div>
+    </div>
+    <div class="row" style="justify-content:flex-end"><button id="cr-cancel">취소</button><button id="cr-ok" class="on">시작</button></div>
+  </div></div>
+
+  <div id="md-credits" class="modal hidden"><div class="panel">
+    <h2>크레딧 · 라이선스</h2>
+    <p><b>Fantasy RPG Character Base (FREE DEMO)</b> — Franuka · <a href="https://franuka.itch.io/" target="_blank" rel="noopener">franuka.itch.io</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br><span class="note">변경: Medium 체형·셔츠를 머리 레이어와 합성, 셔츠 색 변경(시험), 아틀라스 재포장.</span></p>
+    <p><b>Fantasy RPG Icon Pack (Demo)</b> — Franuka · <a href="https://franuka.itch.io/" target="_blank" rel="noopener">franuka.itch.io</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a><br><span class="note">변경: 아이콘 3종을 UI에 사용, 아틀라스 재포장.</span></p>
+    <p><b>QUEST FACTORY 자체 제작 아트</b> — ART 004 (HAIR_001), ART 005-R (컨베이어·운송 아이템·채굴기·제련기), ART 006-R1 (소형 채굴기 4방향, 용광로 4방향·작동/잔불 애니메이션)</p>
+    <p><b>Phaser 3</b> — MIT</p>
+    <p class="note">지형·나무·몬스터·대부분의 시설·일부 아이템 아이콘은 자체 임시 그래픽입니다 (docs/PLACEHOLDERS_007.md).</p>
+    <div class="row" style="justify-content:flex-end"><button data-close class="on">닫기</button></div>
+  </div></div>
+
+  <div id="ingame" class="hidden">
+    <div id="hud" class="panel"></div>
+    <div id="objectives" class="panel hidden"></div>
+    <div id="topright">
+      <button id="bt-inv" title="I">인벤토리 (I)</button><button id="bt-craft" title="C">제작 (C)</button><button id="bt-guild" title="G">길드 (G)</button>
+      <button id="bt-dev" class="hidden" title="F10">개발자 (F10)</button>
+      <button id="bt-settings">설정</button><button id="bt-save">저장</button><button id="bt-menu">메뉴</button>
+    </div>
+    <div id="hotbar" class="panel"></div>
+    <div id="inspector" class="panel hidden"></div>
+    <div id="cmdbar" class="panel"></div>
+    <div id="debug" class="panel hidden"></div>
+  </div>
+  <div id="md-panel" class="modal hidden"><div class="panel" id="md-panel-body"></div></div>
+  <div id="scr-lab" class="screen hidden" style="align-items:flex-start"><div class="panel" style="padding:14px; width:min(1100px,100%)" id="lab-body"></div></div>
+  <div id="tooltip" class="hidden"></div>
+  <div id="toast"></div>
+</body>
+</html>
